@@ -197,3 +197,35 @@
 
 7. **Répartition des ventes par magasin** :
    - Donnez la répartition des ventes pour chaque magasin.
+
+     db.sales.aggregate([
+      {
+                 $group: {
+                     _id: "$store_id",
+                     totalSales: { $sum: "$total_amount" }
+                 }
+             },
+      ])
+
+      Reponse : [
+            { _id: 'S001', totalSales: 335.83 },
+            { _id: 'S002', totalSales: 350.86 },
+            { _id: 'S003', totalSales: 482.88 }
+          ]
+
+
+
+ 8. **Écart type des montants des transactions** :
+
+ - Calculez l'écart type des montants des transactions pour comprendre la variabilité des ventes.
+
+    db.sales.aggregate([
+         {
+             $group: {
+                 _id: null,
+                 stdDevTotalAmount: { $stdDevSamp: "$total_amount" }
+             }
+         }
+     ])
+    [ { _id: null, stdDevTotalAmount: 32.914460312020594 } ]
+
