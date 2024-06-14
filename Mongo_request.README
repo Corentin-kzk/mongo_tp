@@ -1,0 +1,199 @@
+1. **Nombre total de transactions** :
+   - Compter le nombre total de documents dans la collection `sales`.
+
+    db.sales.countDocuments({})
+
+    Reponse : 20
+
+2. **Ventes totales par jour** :
+   - Donnez le total des ventes quotidiennes.
+
+    db.sales.aggregate([
+        {
+            $group: {
+                _id: {
+                    $dateToString: { format: "%Y-%m-%d", date: "$date" }
+                },
+                totalDailySales: { $sum: "$total_amount" }
+            }
+        },
+        {
+            $sort: { _id: 1 }
+        }
+    ])
+
+    Reponse : [
+                { _id: '2023-06-13', totalDailySales: 12.99 },
+                { _id: '2023-06-14', totalDailySales: 45.98 },
+                { _id: '2023-06-15', totalDailySales: 33.99 },
+                { _id: '2023-06-16', totalDailySales: 32.97 },
+                { _id: '2023-06-17', totalDailySales: 89.98 },
+                { _id: '2023-06-18', totalDailySales: 55.99 },
+                { _id: '2023-06-19', totalDailySales: 23.96 },
+                { _id: '2023-06-20', totalDailySales: 50.97 },
+                { _id: '2023-06-21', totalDailySales: 77.99 },
+                { _id: '2023-06-22', totalDailySales: 57.98 },
+                { _id: '2023-06-23', totalDailySales: 89.99 },
+                { _id: '2023-06-24', totalDailySales: 133.98 },
+                { _id: '2023-06-25', totalDailySales: 99.99 },
+                { _id: '2023-06-26', totalDailySales: 23.97 },
+                { _id: '2023-06-27', totalDailySales: 75.96 },
+                { _id: '2023-06-28', totalDailySales: 47.98 },
+                { _id: '2023-06-29', totalDailySales: 29.99 },
+                { _id: '2023-06-30', totalDailySales: 104.97 },
+                { _id: '2023-07-01', totalDailySales: 59.96 },
+                { _id: '2023-07-02', totalDailySales: 19.98 }
+              ]
+
+
+3. **Ventes totales par produit** :
+   - Donnez le total des ventes pour chaque produit.
+
+    db.sales.aggregate([
+        {
+            $group: {
+                _id: "$product_id",
+                totalSales: { $sum: "$total_amount" }
+            }
+        },
+        {
+            $sort: { totalSales: -1 }
+        }
+    ])
+
+    Reponse : [
+                { _id: 'P67910', totalSales: 133.98 },
+                { _id: 'P67916', totalSales: 104.97 },
+                { _id: 'P67911', totalSales: 99.99 },
+                { _id: 'P67909', totalSales: 89.99 },
+                { _id: 'P67903', totalSales: 89.98 },
+                { _id: 'P67907', totalSales: 77.99 },
+                { _id: 'P67913', totalSales: 75.96 },
+                { _id: 'P67917', totalSales: 59.96 },
+                { _id: 'P67908', totalSales: 57.98 },
+                { _id: 'P67904', totalSales: 55.99 },
+                { _id: 'P67906', totalSales: 50.97 },
+                { _id: 'P67914', totalSales: 47.98 },
+                { _id: 'P67900', totalSales: 45.98 },
+                { _id: 'P67901', totalSales: 33.99 },
+                { _id: 'P67902', totalSales: 32.97 },
+                { _id: 'P67915', totalSales: 29.99 },
+                { _id: 'P67912', totalSales: 23.97 },
+                { _id: 'P67905', totalSales: 23.96 },
+                { _id: 'P67918', totalSales: 19.98 },
+                { _id: 'P67899', totalSales: 12.99 }
+              ]
+
+4. **Top 5 des produits les plus vendus** :
+   - Identifiez les 5 produits avec le plus grand nombre de transactions.
+
+    db.sales.aggregate([
+              {
+                  $group: {
+                      _id: "$product_id",
+                      totalquantity: {$sum : 1}
+                  }
+              },
+              {
+                  $sort: { totalquantity: -1 }
+              },
+              {
+                           $limit: 5
+               }
+         ])
+
+
+
+
+    Reponse : [
+                    { _id: 'P67909', totalquantity: 1 },
+                    { _id: 'P67903', totalquantity: 1 },
+                    { _id: 'P67911', totalquantity: 1 },
+                    { _id: 'P67906', totalquantity: 1 },
+                    { _id: 'P67904', totalquantity: 1 }
+    ]
+
+5. **Revenu moyen par transaction** :
+   - Calculez le revenu moyen par transaction.
+   
+   Possibilité N°1 : par transaction
+
+    db.sales.aggregate([
+        {
+            $group: {
+                _id: "$transaction_id",
+                avgRevenuePerTransaction: {
+                    $avg: { $divide: ["$total_amount", "$quantity"] }
+                }
+            }
+        },
+        {
+            $sort: {_id : 1 }
+        }
+    ])
+
+
+   Reponse : [
+               { _id: '11', avgRevenuePerTransaction: 12.99 },
+               { _id: '12', avgRevenuePerTransaction: 22.99 },
+               { _id: '13', avgRevenuePerTransaction: 33.99 },
+               { _id: '14', avgRevenuePerTransaction: 10.99 },
+               { _id: '15', avgRevenuePerTransaction: 44.99 },
+               { _id: '16', avgRevenuePerTransaction: 55.99 },
+               { _id: '17', avgRevenuePerTransaction: 5.99 },
+               { _id: '18', avgRevenuePerTransaction: 16.99 },
+               { _id: '19', avgRevenuePerTransaction: 77.99 },
+               { _id: '20', avgRevenuePerTransaction: 28.99 },
+               { _id: '21', avgRevenuePerTransaction: 89.99 },
+               { _id: '22', avgRevenuePerTransaction: 66.99 },
+               { _id: '23', avgRevenuePerTransaction: 99.99 },
+               { _id: '24', avgRevenuePerTransaction: 7.989999999999999 },
+               { _id: '25', avgRevenuePerTransaction: 18.99 },
+               { _id: '26', avgRevenuePerTransaction: 23.99 },
+               { _id: '27', avgRevenuePerTransaction: 29.99 },
+               { _id: '28', avgRevenuePerTransaction: 34.99 },
+               { _id: '29', avgRevenuePerTransaction: 14.99 },
+               { _id: '30', avgRevenuePerTransaction: 9.99 }
+             ]
+             
+   Possibilité N°2 :sur toutes les transactions
+
+     db.sales.aggregate([
+            {
+                $group: {
+                    _id: "null",
+                    avgRevenuePerTransaction: {
+                        $avg: { $divide: ["$total_amount", "$quantity"] }
+                    }
+                }
+            },
+            {
+                $sort: {_id : 1 }
+            }
+        ])
+
+    Reponse : [ { _id: 'null', avgRevenuePerTransaction: 35.489999999999995 } ]
+
+
+6. **Nombre de clients uniques** :
+   - Comptez le nombre de clients uniques ayant effectué au moins une transaction.
+
+        sales> db.sales.aggregate([
+             {
+                 $group: {
+                     _id: "$customer_id"
+                 }
+             },
+             {
+                 $group: {
+                     _id: null,
+                     uniqueCustomersCount: { $sum: 1 }
+                 }
+             }
+         ])
+
+        Reponse : [ { _id: null, uniqueCustomersCount: 20 } ]
+
+
+7. **Répartition des ventes par magasin** :
+   - Donnez la répartition des ventes pour chaque magasin.
